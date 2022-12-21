@@ -16,6 +16,7 @@ use Siluet\Auth;
 use Siluet\Eloquent;
 use Siluet\Notif;
 use Siluet\Validation;
+use Siluet\Xendit as SiluetXendit;
 use Xendit\Invoice;
 use Xendit\Xendit;
 
@@ -228,6 +229,39 @@ class UserController
             );
 
             return $data;
+        });
+    }
+
+    public function callback()
+    {
+        ["merchant_name" => $merchant, "id" => $id] = Validation::validate([
+            "body" => [
+                "merchant_name" => v::optional(v::stringType()->notEmpty()),
+                "id" => v::optional(v::stringType()->notEmpty())
+            ]
+        ]);
+        App::controller(function () use ($merchant, $id) {
+            if ($merchant === "Xendit") {
+                return ["success" => "Hello xendit!"];
+            }
+
+            $token = App::$request->getHeaderLine("x-callback-token") ?? "";
+
+            if ($token !== $_ENV["X_CALLBACK_TOKEN"]) {
+                App::$response = App::$response->withStatus(401);
+                return ["error" => "Unauthorized"];
+            }
+
+            $getInvoice = (SiluetXendit::get())::retrieve($id);
+
+            $user = Payment::where("user_id", str_replace("user-", "", $getInvoice["external_id"]))->firstOrFail();
+
+            if ($getInvoice["status"] === "SETTLED" || $getInvoice["status"] === "PAID") {
+                $user->is_paid = true;
+                $user->save();
+            }
+
+            return $user->toArray();
         });
     }
 
