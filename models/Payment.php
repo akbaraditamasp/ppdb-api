@@ -18,6 +18,10 @@ class Payment extends BaseModel
         "is_paid"
     ];
 
+    protected $casts = [
+        "is_paid" => "bool"
+    ];
+
     /**
      * The attributes that should be hidden for serialization.
      *
