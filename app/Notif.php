@@ -27,7 +27,7 @@ class Notif
     {
         $content = new StringMap();
         $content->setEn($text);
-        $title = (new StringMap())->setEn("Halo");
+        $title = (new StringMap())->setEn($title);
 
         $notification = new Notification();
         $notification->setAppId($_ENV["APP_ID"]);
