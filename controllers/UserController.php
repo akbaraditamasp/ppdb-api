@@ -254,14 +254,16 @@ class UserController
 
             $getInvoice = (SiluetXendit::get())::retrieve($id);
 
-            $user = Payment::where("user_id", str_replace("user-", "", $getInvoice["external_id"]))->firstOrFail();
+            $payment = Payment::where("user_id", str_replace("user-", "", $getInvoice["external_id"]))->firstOrFail();
+            $user = User::findOrFail($payment->user_id);
+            $notif = Notif::send($user->notif, "Pembayaran Berhasil", "Pembayaran anda berhasil dikonfirmasi");
 
             if ($getInvoice["status"] === "SETTLED" || $getInvoice["status"] === "PAID") {
-                $user->is_paid = true;
-                $user->save();
+                $payment->is_paid = true;
+                $payment->save();
             }
 
-            return $user->toArray();
+            return $payment->toArray();
         });
     }
 
@@ -281,7 +283,7 @@ class UserController
 
             $user = User::findOrFail($id);
 
-            Notif::send($user->notif, "Hasil tes telah diperbaharui");
+            $notif = Notif::send($user->notif, "Hasil Ujian", "Silahkan cek hasil ujian anda");
 
             return $resultIn->toArray();
         });

@@ -19,7 +19,9 @@ class Payment extends BaseModel
     ];
 
     protected $casts = [
-        "is_paid" => "bool"
+        "is_paid" => "bool",
+        "amount" => "int",
+        "user_id" => "int"
     ];
 
     /**

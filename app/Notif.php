@@ -23,14 +23,16 @@ class Notif
         );
     }
 
-    public static function send($id, $text)
+    public static function send($id, $title, $text)
     {
         $content = new StringMap();
         $content->setEn($text);
+        $title = (new StringMap())->setEn("Halo");
 
         $notification = new Notification();
         $notification->setAppId($_ENV["APP_ID"]);
         $notification->setContents($content);
+        $notification->setHeadings($title);
         $notification->setIncludePlayerIds([$id]);
 
         $send = static::$apiInstance->createNotification($notification);
